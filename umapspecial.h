@@ -2,15 +2,17 @@
 #define UMAPSPECIAL_H
 
 #include "umapiterator.h"
+#include "cumapiterator.h"
 
 #include <stdexcept>
 #include <vector>
 
 template <typename V>
 class uMap<const char*,V> {
-	std::vector<std::pair<const char*,V>> m_v ={};
+	std::vector<std::pair<const char*,V>> m_v {};
 public:
 	friend class iteratoruMap<const char*,V>;
+	friend class citeratoruMap<const char*,V>;
 	uMap();
 	~uMap();
 	uMap(const uMap& m);
@@ -19,13 +21,13 @@ public:
 	uMap& operator=(const uMap&);
 	uMap& operator=(uMap&&) noexcept;
 
-	/*iterateurs*/
+	/*iterators*/
 	iteratoruMap<const char*,V> begin() noexcept;
-	const iteratoruMap<const char*,V> begin() const noexcept;
-	const iteratoruMap<const char*,V> cbegin() const noexcept;
+	citeratoruMap<const char*,V> begin() const noexcept;
+	citeratoruMap<const char*,V> cbegin() const noexcept;
 	iteratoruMap<const char*,V> end() noexcept;
-	const iteratoruMap<const char*,V> end() const noexcept;
-	const iteratoruMap<const char*,V> cend() const noexcept;
+	citeratoruMap<const char*,V> end() const noexcept;
+	citeratoruMap<const char*,V> cend() const noexcept;
 
 	/*capacity*/
 	size_t size() const noexcept;
@@ -34,7 +36,7 @@ public:
 	/*lookup*/
 	const V& at(const char*) const;
 	unsigned count(const char*) const noexcept;
-	iteratoruMap<const char*,V> find(const char*) noexcept;
+	citeratoruMap<const char*,V> find(const char*) const noexcept;
 
 	/*modifiers*/
 	std::pair<iteratoruMap<const char*,V>,bool> insert(const std::pair<const char*,V>&);
@@ -42,9 +44,7 @@ public:
 	V& operator[](const char*);
 	void clear() noexcept; 
 	void swap(uMap<const char*,V>&) noexcept;
-	//iteratoruMap<k,v> erase(const iteratoruMap<k,v>&);
-	//iteratoruMap<k,v> erase(const iteratoruMap<k,v>&, const iteratoruMAp<k,v>&);
-	//size_type erase(const k&);
+	size_t erase(const char*);
 };
 
 /*constructors*/
@@ -86,19 +86,19 @@ template <typename V>
 iteratoruMap<const char*,V> uMap<const char*,V>::begin() noexcept { return iteratoruMap<const char*,V>(*this); }
 
 template <typename V>
-const iteratoruMap<const char*,V> uMap<const char*,V>::begin() const noexcept { return iteratoruMap<const char*,V>(*this); }
+citeratoruMap<const char*,V> uMap<const char*,V>::begin() const noexcept { return citeratoruMap<const char*,V>(*this); }
 
 template <typename V>
-const iteratoruMap<const char*,V> uMap<const char*,V>::cbegin() const noexcept{ return iteratoruMap<const char*,V>(*this); }
+citeratoruMap<const char*,V> uMap<const char*,V>::cbegin() const noexcept{ return citeratoruMap<const char*,V>(*this); }
 
 template <typename V>
 iteratoruMap<const char*,V> uMap<const char*,V>::end() noexcept { return iteratoruMap<const char*,V>(*this,(unsigned)size()); }
 
 template <typename V>
-const iteratoruMap<const char*,V> uMap<const char*,V>::end() const noexcept { return iteratoruMap<const char*,V>(*this,(unsigned)size()); }
+citeratoruMap<const char*,V> uMap<const char*,V>::end() const noexcept { return citeratoruMap<const char*,V>(*this,(unsigned)size()); }
 
 template <typename V>
-const iteratoruMap<const char*,V> uMap<const char*,V>::cend() const noexcept { return iteratoruMap<const char*,V>(*this,(unsigned)size()); }
+citeratoruMap<const char*,V> uMap<const char*,V>::cend() const noexcept { return citeratoruMap<const char*,V>(*this,(unsigned)size()); }
 
 
 /*capacity*/
@@ -129,12 +129,12 @@ unsigned uMap<const char*,V>::count(const char* key) const noexcept
 }
 
 template <typename V>
-iteratoruMap<const char*,V> uMap<const char*,V>::find(const char* key) noexcept
+citeratoruMap<const char*,V> uMap<const char*,V>::find(const char* key) const noexcept
 {
 	for(unsigned i=0; i<size(); ++i){
-		if(std::strcmp(m_v[i].first, key) == 0 ) return iteratoruMap<K,V>(*this,i);
+		if(std::strcmp(m_v[i].first, key) == 0 ) return citeratoruMap<const char*,V>(*this,i);
 	}
-	return iteratoruMap<K,V>(*this,(unsigned)size());
+	return citeratoruMap<const char*,V>(*this,(unsigned)size());
 }
 
 /*modifier*/
@@ -179,5 +179,13 @@ void uMap<const char*,V>::clear() noexcept { m_v.clear(); }
 
 template <typename V>
 void uMap<const char*,V>::swap(uMap& other) noexcept { m_v.swap(other.m_v); }
+
+template <typename V>
+size_t uMap<const char*,V>::erase(const char* key) {
+	for(unsigned i=0; i<size();++i){
+		if(std::strcmp(key,m_v[i].first) == 0) m_v.erase(m_v.begin()+i);
+	}
+	return size();
+}
 
 #endif

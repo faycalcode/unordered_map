@@ -10,11 +10,11 @@ class uMap;
 template <typename K, typename V>
 class iteratoruMap
 {
-	uMap<K,V>& m_container;
+	uMap<K,V>& m_container; //avec & operator*(), sinon const uMap<k,v> 
 	unsigned m_index = 0;
 public:
 	iteratoruMap(uMap<K,V>&, unsigned = 0);
-	iteratoruMap(const iteratoruMap<K,V>& other);
+	iteratoruMap(const iteratoruMap& other);
 	iteratoruMap& operator=(const iteratoruMap& other);
 	V& operator=(const V&);
 	~iteratoruMap() = default;

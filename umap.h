@@ -1,20 +1,17 @@
 #ifndef UMAP_H
 #define UMAP_H
 #include "umapiterator.h"
+#include "cumapiterator.h"
 
 #include <stdexcept>
 #include <vector>
 
-/*
-1) probleme avec les objets const et les iterateurs
-2) find(k) const; = erreur
-*/
-
 template <typename K, typename V>
 class uMap {
-	std::vector<std::pair<K,V>> m_v = {};
+	std::vector<std::pair<K,V>> m_v {};
 public:
 	friend class iteratoruMap<K,V>;
+	friend class citeratoruMap<K,V>;
 	uMap();
 	~uMap();
 	uMap(const uMap& m);
@@ -23,13 +20,13 @@ public:
 	uMap& operator=(const uMap&);
 	uMap& operator=(uMap&&) noexcept;
 
-	/*iterateurs*/ //signatures vues sur ccpreference
-	iteratoruMap<K,V> begin() noexcept; // un probleme a regler avec les iterators sur des objets const
-	const iteratoruMap<K,V> begin() const noexcept;
-	const iteratoruMap<K,V> cbegin() const noexcept;
+	/*iterateurs*/ 
+	iteratoruMap<K,V> begin() noexcept;
+	citeratoruMap<K,V> begin() const noexcept;
+	citeratoruMap<K,V> cbegin() const noexcept;
 	iteratoruMap<K,V> end() noexcept;
-	const iteratoruMap<K,V> end() const noexcept;
-	const iteratoruMap<K,V> cend() const noexcept;
+	citeratoruMap<K,V> end() const noexcept;
+	citeratoruMap<K,V> cend() const noexcept;
 
 	/*capacity*/
 	size_t size() const noexcept;
@@ -38,7 +35,7 @@ public:
 	/*lookup*/
 	const V& at(const K&) const;
 	unsigned count(const K&) const noexcept;
-	iteratoruMap<K,V> find(const K&) noexcept; //tj le même probleme pas possible de mettre const car création d'iterateur sur const = probleme
+	citeratoruMap<K,V> find(const K&) const noexcept; //tj le même probleme pas possible de mettre const car création d'iterateur sur const = probleme
 
 	/*modifiers*/
 	std::pair<iteratoruMap<K,V>,bool> insert(const std::pair<K,V>&);
@@ -46,10 +43,7 @@ public:
 	V& operator[](const K&);
 	void clear() noexcept;
 	void swap(uMap<K,V>&) noexcept;
-
-	//iteratoruMap<k,v> erase(const iteratoruMap<k,v>&);
-	//iteratoruMap<k,v> erase(const iteratoruMap<k,v>&, const iteratoruMAp<k,v>&);
-	//size_type erase(const k&);
+	size_t erase(const K&);
 };
 
 /*constructors*/
@@ -90,19 +84,19 @@ template <typename K,typename V>
 iteratoruMap<K,V> uMap<K,V>::begin() noexcept { return iteratoruMap<K,V>(*this); }
 
 template <typename K, typename V>
-const iteratoruMap<K,V> uMap<K,V>::begin() const noexcept { return iteratoruMap<K,V>(*this); }
+citeratoruMap<K,V> uMap<K,V>::begin() const noexcept { return citeratoruMap<K,V>(*this); }
 
 template <typename K,typename V>
-const iteratoruMap<K,V> uMap<K,V>::cbegin() const noexcept { return iteratoruMap<K,V>(*this); }
+citeratoruMap<K,V> uMap<K,V>::cbegin() const noexcept { return citeratoruMap<K,V>(*this); }
 
 template <typename K,typename V>
 iteratoruMap<K,V> uMap<K,V>::end() noexcept { return iteratoruMap<K,V>(*this,(unsigned)size()); }
 
 template <typename K,typename V>
-const iteratoruMap<K,V> uMap<K,V>::end() const noexcept { return iteratoruMap<K,V>(*this,(unsigned)size()); }
+citeratoruMap<K,V> uMap<K,V>::end() const noexcept { return citeratoruMap<K,V>(*this,(unsigned)size()); }
 
 template <typename K,typename V>
-const iteratoruMap<K,V> uMap<K,V>::cend() const noexcept { return iteratoruMap<K,V>(*this,(unsigned)size()); }
+citeratoruMap<K,V> uMap<K,V>::cend() const noexcept { return citeratoruMap<K,V>(*this,(unsigned)size()); }
 
 
 /*capacity*/
@@ -133,12 +127,12 @@ unsigned uMap<K,V>::count(const K& key) const noexcept
 }
 
 template <typename K, typename V>
-iteratoruMap<K,V> uMap<K,V>::find(const K& key) noexcept
+citeratoruMap<K,V> uMap<K,V>::find(const K& key) const noexcept
 {
 	for(unsigned i=0; i<size(); ++i){
-		if(key == m_v[i].first) return iteratoruMap<K,V>(*this, i);
+		if(key == m_v[i].first) return citeratoruMap<K,V>(*this, i);
 	}
-	return iteratoruMap<K,V>(*this, (unsigned)size());
+	return citeratoruMap<K,V>(*this, (unsigned)size());
 }
 
 
@@ -185,5 +179,14 @@ void uMap<K,V>::clear() noexcept { m_v.clear(); }
 
 template <typename K, typename V>
 void uMap<K,V>::swap(uMap& other) noexcept { m_v.swap(other.m_v); }
+
+template <typename K, typename V>
+size_t uMap<K,V>::erase(const K& key)
+{
+	for(unsigned i=0; i<size(); ++i){
+		if(key == m_v[i].first) m_v.erase(m_v.begin() + i);
+	}
+	return size();
+}
 
 #endif
