@@ -35,7 +35,7 @@ public:
 	/*lookup*/
 	const V& at(const K&) const;
 	unsigned count(const K&) const noexcept;
-	citeratoruMap<K,V> find(const K&) const noexcept; //tj le même probleme pas possible de mettre const car création d'iterateur sur const = probleme
+	citeratoruMap<K,V> find(const K&) const noexcept;
 
 	/*modifiers*/
 	std::pair<iteratoruMap<K,V>,bool> insert(const std::pair<K,V>&);

@@ -4,13 +4,15 @@
 #include <utility>
 #include <stdexcept>
 
+/*the const iterator*/
+
 template <typename K,typename V>
 class uMap;
 
 template <typename K,typename V>
 class citeratoruMap
 {
-	const uMap<K,V>& m_container; //avec & operator*(), sinon const uMap<k,v> 
+	const uMap<K,V>& m_container;
 	unsigned m_index = 0;
 public:
 	citeratoruMap(const uMap<K,V>&,unsigned = 0);
